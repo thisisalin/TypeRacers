@@ -44,10 +44,8 @@ namespace TypeRacers.Server
         // Accept one client connection asynchronously.
         public void DoBeginAcceptTcpClient()
         {
-            Console.WriteLine("waiting...");
             // Start to listen for connections from a client.
             server.BeginAcceptTcpClient(new AsyncCallback(DoAcceptTcpClientCallback), server);
-
         }
 
         // Process the client connection.
@@ -58,6 +56,7 @@ namespace TypeRacers.Server
             try
             {
                 client = listener.EndAcceptTcpClient(ar);
+                Console.WriteLine("Accepted new client...");
                 Player newConnectedClient = new Player(new TypeRacersNetworkClient(client));
                 playrooms.AllocatePlayroom(newConnectedClient);
             }
@@ -65,12 +64,9 @@ namespace TypeRacers.Server
             catch (SocketException ex)
             {
                 Console.WriteLine("Error accepting TCP connection: {0}", ex.Message);
-
-                // unrecoverable
-               // _doneEvent.Set();
                 return;
             }
-
+            //keep listening
             listener.BeginAcceptTcpClient(new AsyncCallback(DoAcceptTcpClientCallback), listener);
         }
     }

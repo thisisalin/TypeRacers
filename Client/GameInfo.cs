@@ -32,9 +32,9 @@ namespace TypeRacers.Client
         }
 
         public void SetGameInfo(string data)
-        {
+        {   
+            
             CompetitionText = data.Substring(0, data.IndexOf('$'));
-
             var times = data.Substring(data.IndexOf('%') + 1);
             var gameTimers = times.Split('*');
             TimeToWaitForOpponents = DateTime.Parse(gameTimers.FirstOrDefault());

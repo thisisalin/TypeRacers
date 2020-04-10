@@ -23,7 +23,6 @@ namespace Common
         public void Dispose()
         {
             networkStream.Dispose();
-            realTcpClient.Dispose();
             realTcpClient.Close();
         }
 
@@ -48,7 +47,7 @@ namespace Common
         {
             if (realTcpClient.Connected)
             {
-                networkStream = realTcpClient.GetStream();
+                //networkStream = realTcpClient.GetStream();
                 return new ReceivedMessage(realTcpClient);
             }
             return default;

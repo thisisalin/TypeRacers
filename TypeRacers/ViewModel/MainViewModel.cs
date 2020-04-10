@@ -20,8 +20,6 @@ namespace TypeRacers.ViewModel
             ContestCommand = new CommandHandler(NavigateContest, () => true);
             PracticeCommand = new CommandHandler(NavigatePractice, () => true);
         }
-
-        private bool EnablePlayerCantConnect { get; set; }
         public bool UsernameEntered { get; set; }
         public Model.Model Model { get; set; }
         public bool EnterUsernameMessage { get; set; }

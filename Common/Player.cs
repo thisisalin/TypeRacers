@@ -70,7 +70,7 @@ namespace Common
 
         public bool CheckIfLeft()
         {
-            if (Name.Contains("_removed") && Name != null)
+            if (Name?.Contains("_removed") == true)
             {
                 Playroom.Leave(Name);
                 NetworkClient.Dispose();
