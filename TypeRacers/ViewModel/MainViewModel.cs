@@ -1,5 +1,3 @@
-
-using System;
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Threading;
@@ -20,6 +18,7 @@ namespace TypeRacers.ViewModel
             ContestCommand = new CommandHandler(NavigateContest, () => true);
             PracticeCommand = new CommandHandler(NavigatePractice, () => true);
         }
+
         public bool UsernameEntered { get; set; }
         public Model.Model Model { get; set; }
         public bool EnterUsernameMessage { get; set; }
@@ -61,12 +60,8 @@ namespace TypeRacers.ViewModel
                 {
                     try
                     {
-                        bool connected = Model.StartCommunication();
-                        if (!connected)
-                        {
-                            throw new SocketException();
+                        Model.StartCommunication();
 
-                        }
                         var gameInfo = Model.GetGameInfo();
                         var player = Model.GetPlayer();
                         while (!gameInfo.GameInfoIsSet)

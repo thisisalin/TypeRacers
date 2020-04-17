@@ -1,6 +1,8 @@
 ﻿using Common;
 using System;
+using System.Diagnostics;
 using System.Net.Sockets;
+using System.Threading;
 using TypeRacers.Client;
 
 namespace TypeRacers
@@ -9,14 +11,16 @@ namespace TypeRacers
     public class NetworkHandler
     {
         private readonly Player player;
-        private readonly TcpClient client;
-
+        private readonly TcpClient tcpClient;
         private TypeRacersClient typeRacersClient;
+
+        // ManualResetEvent instances signal completion.
+        private static readonly ManualResetEvent connectDone = new ManualResetEvent(false);
 
         public NetworkHandler(string userName)
         {
-            client = new TcpClient();
-            player = new Player(new TypeRacersNetworkClient(client))
+            tcpClient = new TcpClient();
+            player = new Player(new TypeRacersNetworkClient(tcpClient))
             {
                 Name = userName
             };
@@ -33,18 +37,37 @@ namespace TypeRacers
             return player;
         }
 
-        internal bool StartCommunication()
+        internal void StartCommunication()
         {
             try
             {
-                client.Connect("localhost", 80);
-
+                // Connect to the remote endpoint.
+                tcpClient.BeginConnect("localhost", 80, new AsyncCallback(ConnectCallback), tcpClient);
+                connectDone.WaitOne();
                 typeRacersClient.StartCommunication();
-                return true;
             }
-            catch(SocketException)
+            catch (SocketException ex)
             {
-                return false;
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+        private static void ConnectCallback(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the socket from the state object.
+                TcpClient client = (TcpClient)ar.AsyncState;
+
+                // Complete the connection.
+                client.EndConnect(ar);
+
+                // Signal that the connection has been made.
+                connectDone.Set();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
             }
         }
     }

@@ -20,6 +20,7 @@ namespace TypeRacers.Client
         public int Place { get; set; }
         public bool GameInfoIsSet { get; set; }
         public bool ConnectionLost { get; set; }
+
         public Player GetPlayer(string name)
         {
             return Players.Find(p => p.Name.Equals(name));
@@ -32,8 +33,7 @@ namespace TypeRacers.Client
         }
 
         public void SetGameInfo(string data)
-        {   
-            
+        {
             CompetitionText = data.Substring(0, data.IndexOf('$'));
             var times = data.Substring(data.IndexOf('%') + 1);
             var gameTimers = times.Split('*');
@@ -67,9 +67,9 @@ namespace TypeRacers.Client
             OpponentsChanged = new OpponentsChangedEventHandler(updateOpponents);
             OpponentsChanged += new OpponentsChangedEventHandler(OpponentsChanged);
         }
+
         private void SetOpponents(string[] nameAndInfos)
         {
-
             var name = nameAndInfos.FirstOrDefault();
             var info = nameAndInfos.LastOrDefault()?.Split('&');
 
@@ -78,7 +78,6 @@ namespace TypeRacers.Client
                 return;
             }
             var player = GetPlayer(name);
-
 
             if (player == default)
             {
@@ -96,7 +95,6 @@ namespace TypeRacers.Client
                 player.Finnished = Convert.ToBoolean(info[2]);
                 player.Place = int.Parse(info[3]);
             }
-
         }
 
         public void OnOpponentsChanged(List<Player> opponents)

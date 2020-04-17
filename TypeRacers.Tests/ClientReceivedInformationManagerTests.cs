@@ -22,7 +22,7 @@ namespace TypeRacersFacts
             communicator = new ClientReceivedInformationManager(player, gameInfo);
             var waitingTime = DateTime.UtcNow;
             player.Write(new GameMessage("This is the text", waitingTime, DateTime.MinValue, DateTime.MinValue));
-            communicator.SetData();
+            communicator.ManageReceivedData();
 
             Assert.Equal("This is the text", gameInfo.CompetitionText);
             Assert.False(gameInfo.TimeToWaitForOpponents.Equals(DateTime.MinValue));
@@ -37,7 +37,7 @@ namespace TypeRacersFacts
             communicator = new ClientReceivedInformationManager(player, gameInfo);
             var waitingTime = DateTime.UtcNow;
             player.Write(new GameMessage("This is the text", waitingTime, DateTime.MinValue, DateTime.MinValue));
-            communicator.SetData();
+            communicator.ManageReceivedData();
 
             Player opponent = new Player(new FakeTypeRacersClient())
             {
@@ -45,7 +45,7 @@ namespace TypeRacersFacts
             };
             var opponents = new List<Player> { opponent };
             player.Write(new OpponentsMessage(opponents, DateTime.MinValue, DateTime.MinValue, "Bianca", false, 0));
-            communicator.SetData();
+            communicator.ManageReceivedData();
             Assert.Single(gameInfo.Players);
         }
     }

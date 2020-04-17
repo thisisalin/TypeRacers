@@ -4,8 +4,10 @@ namespace Common
 {
     public interface INetworkClient : IDisposable
     {
-        void Write(IMessage message);
+        void Write(IMessage message, AsyncCallback callback);
 
-        IMessage Read();
+        void Read(AsyncCallback callback, byte[] buffer);
+
+        bool IsConnected();
     }
 }

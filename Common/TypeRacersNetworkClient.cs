@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.IO;
 using System.Net.Sockets;
 
 namespace Common
@@ -26,31 +27,44 @@ namespace Common
             realTcpClient.Close();
         }
 
-        public void Write(IMessage message)
+        public bool IsConnected()
+        {
+            return realTcpClient.Connected;
+        }
+
+        public void Write(IMessage message, AsyncCallback callback)
         {
             try
             {
-                if (realTcpClient.Connected)
-                {
-                    networkStream = realTcpClient.GetStream();
-                    var toSend = message.ToByteArray();
-                    networkStream.Write(toSend, 0, toSend.Length);
-                }
+                networkStream = realTcpClient.GetStream();
+                var toSend = message.ToByteArray();
+                networkStream.BeginWrite(toSend, 0, toSend.Length, callback, networkStream);
             }
-            catch (System.IO.IOException ex)
+            catch (IOException)
             {
-                Debug.Write(ex);
+                Dispose();
+            }
+            catch (InvalidOperationException)
+            {
+                Dispose();
             }
         }
 
-        public IMessage Read()
+        public void Read(AsyncCallback callback, byte[] buffer)
         {
-            if (realTcpClient.Connected)
+            try
             {
-                //networkStream = realTcpClient.GetStream();
-                return new ReceivedMessage(realTcpClient);
+                networkStream = realTcpClient.GetStream();
+                networkStream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(callback), networkStream);
             }
-            return default;
+            catch (IOException)
+            {
+                Dispose();
+            }
+            catch (InvalidOperationException)
+            {
+                Dispose();
+            }
         }
     }
 }

@@ -41,14 +41,14 @@ namespace Common
             }
         }
 
-        public IMessage Read()
+        public void Read(AsyncCallback callback, byte[] buffer)
         {
-            return NetworkClient.Read();
+            NetworkClient.Read(callback, buffer);
         }
 
-        public void Write(IMessage message)
+        public void Write(IMessage message, AsyncCallback callback)
         {
-            NetworkClient.Write(message);
+            NetworkClient.Write(message, callback);
         }
 
         public void UpdateInfo(string data)

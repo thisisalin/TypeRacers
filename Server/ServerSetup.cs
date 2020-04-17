@@ -12,8 +12,10 @@ namespace TypeRacers.Server
         private TcpListener server;
         private Rooms playrooms;
         private TcpClient client;
+
         // Thread signal.
-        public static ManualResetEvent tcpClientConnected = new ManualResetEvent(false);
+        public static ManualResetEvent allDone = new ManualResetEvent(false);
+
         public void Setup()
         {
             server = new TcpListener(IPAddress.IPv6Any, 80);
@@ -30,44 +32,41 @@ namespace TypeRacers.Server
             }
 
             Console.WriteLine("Server started");
-            CommunicationSetup();
-        }
-
-        private void CommunicationSetup()
-        {
-            while (true)
-            {
-                DoBeginAcceptTcpClient();
-            }
+            StartCommunication();
         }
 
         // Accept one client connection asynchronously.
-        public void DoBeginAcceptTcpClient()
+        public void StartCommunication()
         {
-            // Start to listen for connections from a client.
-            server.BeginAcceptTcpClient(new AsyncCallback(DoAcceptTcpClientCallback), server);
+            while (true)
+            {
+                // Set the event to nonsignaled state.
+                allDone.Reset();
+
+                // Start an asynchronous socket to listen for connections.
+                Console.WriteLine("Waiting for a connection...");
+
+                // Start to listen for connections from a client.
+                server.BeginAcceptTcpClient(new AsyncCallback(AcceptTcpClientCallback), server);
+
+                // Wait until a connection is made before continuing.
+                allDone.WaitOne();
+            }
         }
 
         // Process the client connection.
-        public void DoAcceptTcpClientCallback(IAsyncResult ar)
+        public void AcceptTcpClientCallback(IAsyncResult ar)
         {
+            // Signal the main thread to continue.
+            allDone.Set();
+
             TcpListener listener = (TcpListener)ar.AsyncState;
+            client = listener.EndAcceptTcpClient(ar);
+            Console.WriteLine("Accepted new client...");
+            Player newConnectedClient = new Player(new TypeRacersNetworkClient(client));
+            playrooms.AllocatePlayroom(newConnectedClient);
 
-            try
-            {
-                client = listener.EndAcceptTcpClient(ar);
-                Console.WriteLine("Accepted new client...");
-                Player newConnectedClient = new Player(new TypeRacersNetworkClient(client));
-                playrooms.AllocatePlayroom(newConnectedClient);
-            }
-
-            catch (SocketException ex)
-            {
-                Console.WriteLine("Error accepting TCP connection: {0}", ex.Message);
-                return;
-            }
-            //keep listening
-            listener.BeginAcceptTcpClient(new AsyncCallback(DoAcceptTcpClientCallback), listener);
+            //listener.BeginAcceptTcpClient(new AsyncCallback(DoAcceptTcpClientCallback), listener);
         }
     }
 }
