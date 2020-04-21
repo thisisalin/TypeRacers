@@ -38,14 +38,14 @@ namespace TypeRacers.Client
         public void SendInfoToServer()
         {
             //player.Write contains networkclient.BeginWrite()
-            Player.Write(new PlayerMessage(Player.WPMProgress, Player.CompletedTextPercentage, Player.Name, Player.FirstTimeConnecting, Player.Restarting, Player.Removed), WriteCallback);
+            networkClient.Write(new PlayerMessage(Player.WPMProgress, Player.CompletedTextPercentage, Player.Name, Player.FirstTimeConnecting, Player.Restarting, Player.Removed), WriteCallback);
             GameInfo.OnOpponentsChanged(GameInfo.Players);
 
             Thread.Sleep(1000);
 
             if (Player.Removed)
             {
-                Player.Write(new PlayerMessage(Player.WPMProgress, Player.CompletedTextPercentage, Player.Name, Player.FirstTimeConnecting, Player.Restarting, Player.Removed), WriteCallback);
+                networkClient.Write(new PlayerMessage(Player.WPMProgress, Player.CompletedTextPercentage, Player.Name, Player.FirstTimeConnecting, Player.Restarting, Player.Removed), WriteCallback);
             }
         }
 
@@ -59,7 +59,7 @@ namespace TypeRacers.Client
                 // Complete sending the data to the remote device.
                 networkStream?.EndWrite(ar);
                 //after writing we read again, Player.Read contains networkclient.BeginRead()
-                Player.Read(ReadCallback, buffer);
+                networkClient.Read(ReadCallback, buffer);
             }
             catch (IOException)
             {

@@ -34,7 +34,6 @@ namespace Server
                 Players.Add(currentPlayer);
                 currentPlayer.Playroom = this;
                 informationManager.StartCommunication();
-
                 return true;
             }
 

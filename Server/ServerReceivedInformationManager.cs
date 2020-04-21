@@ -9,8 +9,8 @@ namespace Server
     public class ServerReceivedInformationManager : IRecievedInformationManager
     {
         private string receivedData;
-        private byte[] buffer = new byte[1024];
-        private INetworkClient networkClient;
+        private readonly byte[] buffer = new byte[1024];
+        private readonly INetworkClient networkClient;
 
         public ServerReceivedInformationManager(Player player, IPlayroom playroom)
         {
@@ -27,7 +27,7 @@ namespace Server
             if (networkClient.IsConnected())
             {
                 //first we read data from clients
-                Player.Read(ReadCallback, buffer);
+                networkClient.Read(ReadCallback, buffer);
             }
             else
             {
@@ -45,7 +45,7 @@ namespace Server
                 // Complete sending the data to the remote device.
                 networkStream.EndWrite(ar);
                 //after writing we read again, Player.Read contains networkclient.BeginRead()
-                Player.Read(ReadCallback, buffer);
+                networkClient.Read(ReadCallback, buffer);
             }
             catch (IOException)
             {
@@ -107,14 +107,14 @@ namespace Server
         {
             Playroom.TrySetStartingTime();
             Player.TrySetRank();
-            Player.Write(GetGameStatus(), WriteCallback);
+            networkClient.Write(GetGameStatus(), WriteCallback);
             Console.WriteLine("sending opponents");
         }
 
         private void SendGameInfo()
         {
             Playroom.TrySetStartingTime();
-            Player.Write(GameMessage(), WriteCallback);
+            networkClient.Write(GameMessage(), WriteCallback);
             Console.WriteLine("sending game info");
         }
 

@@ -41,16 +41,6 @@ namespace Common
             }
         }
 
-        public void Read(AsyncCallback callback, byte[] buffer)
-        {
-            NetworkClient.Read(callback, buffer);
-        }
-
-        public void Write(IMessage message, AsyncCallback callback)
-        {
-            NetworkClient.Write(message, callback);
-        }
-
         public void UpdateInfo(string data)
         {
             var nameAndInfo = data.Split('$');
