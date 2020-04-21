@@ -58,7 +58,6 @@ namespace Server
                 Players.Remove(Players.Find(x => x.Name.Equals(playerName)));
                 return true;
             }
-
             if (Players.Count == 0)
             {
                 Reset();
