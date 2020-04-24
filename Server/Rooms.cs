@@ -19,6 +19,7 @@ namespace Server
         public void AllocatePlayroom(Player player)
         {
             var communicator = new ServerReceivedInformationManager(player, playrooms.Last());
+
             if (!playrooms.Any(p => p.Join(player, communicator)))
             {
                 CreateNewPlayroom();

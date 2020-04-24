@@ -12,7 +12,7 @@ namespace TypeRacers
     {
         private readonly Player player;
         private readonly TcpClient tcpClient;
-        private TypeRacersClient typeRacersClient;
+        private readonly TypeRacersClient typeRacersClient;
 
         // ManualResetEvent instances signal completion.
         private static readonly ManualResetEvent connectDone = new ManualResetEvent(false);

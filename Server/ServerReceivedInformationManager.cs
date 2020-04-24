@@ -58,7 +58,7 @@ namespace Server
             //when the read is done we reach here
             try
             {
-                NetworkStream networkStream = (NetworkStream)ar.AsyncState;
+                NetworkStream networkStream = ar.AsyncState as NetworkStream;
                 int bytesRead = networkStream.EndRead(ar);
 
                 if (bytesRead > 0)
@@ -68,6 +68,7 @@ namespace Server
                     {
                         // All the data has been read from the stream
                         receivedData = receivedData.Remove(receivedData.Length - 1);
+                        Console.WriteLine("Data received: " + receivedData);
                         ProcessResults(receivedData);
                     }
                     else
@@ -87,19 +88,17 @@ namespace Server
         {
             Player.UpdateInfo(data);
 
-            if (Player.CheckIfLeft())
+            if (!Player.CheckIfLeft())
             {
-                return;
-            }
-
-            if (Player.FirstTimeConnecting || Player.CheckIfTriesToRestart())
-            {
-                SendGameInfo();
-                Player.FirstTimeConnecting = false;
-            }
-            else
-            {
-                SendGamestatus();
+                if (Player.FirstTimeConnecting || Player.CheckIfTriesToRestart())
+                {
+                    SendGameInfo();
+                    Player.FirstTimeConnecting = false;
+                }
+                else
+                {
+                    SendGamestatus();
+                }
             }
         }
 

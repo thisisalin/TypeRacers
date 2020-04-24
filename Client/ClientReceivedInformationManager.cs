@@ -28,6 +28,7 @@ namespace TypeRacers.Client
 
         public void StartCommunication()
         {
+
             if (networkClient.IsConnected() && !Player.Removed)
             {
                 //first we send some info to the server
@@ -92,6 +93,10 @@ namespace TypeRacers.Client
                 }
                 //finally write to server again
                 SendInfoToServer();
+            }
+            catch(ObjectDisposedException)
+            {
+                networkClient.Dispose();
             }
             catch (IOException)
             {

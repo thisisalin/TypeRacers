@@ -68,32 +68,35 @@ namespace TypeRacers.Client
             OpponentsChanged += new OpponentsChangedEventHandler(OpponentsChanged);
         }
 
-        private void SetOpponents(string[] nameAndInfos)
+        private void SetOpponents(string[] recievedData)
         {
-            var name = nameAndInfos.FirstOrDefault();
-            var info = nameAndInfos.LastOrDefault()?.Split('&');
+            var receivedName = recievedData.FirstOrDefault();
+            var playerInfo = recievedData.LastOrDefault()?.Split('&');
 
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(receivedName))
             {
                 return;
             }
-            var player = GetPlayer(name);
+            var player = GetPlayer(receivedName);
 
             if (player == default)
             {
                 var tcpClient = new TcpClient();
                 player = new Player(new TypeRacersNetworkClient(tcpClient))
                 {
-                    Name = name
+                    Name = receivedName
                 };
                 var informationManager = new ClientReceivedInformationManager(player, this);
                 Join(player, informationManager);
             }
             else
             {
-                player.UpdateProgress(int.Parse(info[0]), int.Parse(info[1]));
-                player.Finnished = Convert.ToBoolean(info[2]);
-                player.Place = int.Parse(info[3]);
+                var wpmProgress = int.Parse(playerInfo[0]);
+                var completedTextPercentage = int.Parse(playerInfo[1]);
+
+                player.UpdateProgress(wpmProgress, completedTextPercentage);
+                player.Finnished = Convert.ToBoolean(playerInfo[2]);
+                player.Place = int.Parse(playerInfo[3]);
             }
         }
 

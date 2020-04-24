@@ -24,19 +24,13 @@ namespace Server
 
         public bool Join(Player currentPlayer, IRecievedInformationManager informationManager)
         {
-            if (GameHasStarted || Players.Count == 3)
-            {
-                return false;
-            }
-
-            if (!IsInPlayroom(currentPlayer.Name))
+            if (!GameHasStarted && Players.Count != 3 && !IsInPlayroom(currentPlayer.Name))
             {
                 Players.Add(currentPlayer);
                 currentPlayer.Playroom = this;
                 informationManager.StartCommunication();
                 return true;
             }
-
             return false;
         }
 

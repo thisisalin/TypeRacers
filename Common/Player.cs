@@ -26,10 +26,10 @@ namespace Common
             Playroom = playroom;
         }
 
-        public void UpdateProgress(int wpmProgress, int completedText)
+        public void UpdateProgress(int wpmProgress, int completedTextPercentage)
         {
             WPMProgress = wpmProgress;
-            CompletedTextPercentage = completedText;
+            CompletedTextPercentage = completedTextPercentage;
         }
 
         public void TrySetRank()
@@ -41,16 +41,17 @@ namespace Common
             }
         }
 
-        public void UpdateInfo(string data)
+        public void UpdateInfo(string dataReceived)
         {
-            var nameAndInfo = data.Split('$');
+            //received the name, if first time connected and progress infos
+            var nameAndInfo = dataReceived.Split('$');
             var infos = nameAndInfo.FirstOrDefault()?.Split('&');
             Name = nameAndInfo.LastOrDefault();
-
-            Console.WriteLine(data);
-
             FirstTimeConnecting = Convert.ToBoolean(infos[2]);
-            UpdateProgress(int.Parse(infos[0]), int.Parse(infos[1]));
+            var wpmProgress = int.Parse(infos[0]);
+            var completedTextPercentage = int.Parse(infos[1]);
+            UpdateProgress(wpmProgress, completedTextPercentage);
+            Console.WriteLine("Name: " + Name + ", First time connecting: " + FirstTimeConnecting + ", WPMprogress: " + WPMProgress + ", completed text: " + completedTextPercentage);
         }
 
         public bool CheckIfTriesToRestart()

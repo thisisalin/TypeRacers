@@ -10,13 +10,10 @@ namespace Common
         DateTime GameEndingTime { get; set; }
         DateTime TimeToWaitForOpponents { get; set; }
         int Place { get; set; }
-
         Player GetPlayer(string name);
-
         List<Player> Players { get; set; }
-
         bool Leave(string name);
-
+        bool Join(Player currentPlayer, IRecievedInformationManager informationManager);
         void TrySetStartingTime();
     }
 }
