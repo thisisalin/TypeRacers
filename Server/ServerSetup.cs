@@ -9,6 +9,7 @@ namespace TypeRacers.Server
 {
     internal class ServerSetup
     {
+        //todo: change name to server
         private TcpListener server;
         private Rooms playrooms;
         private TcpClient client;
@@ -63,10 +64,8 @@ namespace TypeRacers.Server
             TcpListener listener = (TcpListener)ar.AsyncState;
             client = listener.EndAcceptTcpClient(ar);
             Console.WriteLine("Accepted new client...");
-            Player newConnectedClient = new Player(new TypeRacersNetworkClient(client));
+            Player newConnectedClient = new Player(new NetworkClient(client));
             playrooms.AllocatePlayroom(newConnectedClient);
-
-            //listener.BeginAcceptTcpClient(new AsyncCallback(DoAcceptTcpClientCallback), listener);
         }
     }
 }

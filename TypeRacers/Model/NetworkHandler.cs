@@ -20,7 +20,7 @@ namespace TypeRacers
         public NetworkHandler(string userName)
         {
             tcpClient = new TcpClient();
-            player = new Player(new TypeRacersNetworkClient(tcpClient))
+            player = new Player(new NetworkClient(tcpClient))
             {
                 Name = userName
             };

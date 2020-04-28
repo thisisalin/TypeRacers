@@ -82,7 +82,7 @@ namespace TypeRacers.Client
             if (player == default)
             {
                 var tcpClient = new TcpClient();
-                player = new Player(new TypeRacersNetworkClient(tcpClient))
+                player = new Player(new NetworkClient(tcpClient))
                 {
                     Name = receivedName
                 };

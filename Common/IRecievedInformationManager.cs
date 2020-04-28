@@ -4,7 +4,6 @@
     {
         Player Player { get; set; }
         IPlayroom Playroom { get; set; }
-
         void StartCommunication();
     }
 }
