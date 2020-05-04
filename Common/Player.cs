@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,12 +9,13 @@ namespace Common
     public class Player
     {
         private string receivedData = string.Empty;
-        readonly byte[] buffer = new byte[1024];
+        private readonly byte[] buffer = new byte[1024];
 
         public Player(INetworkClient tcpClient)
         {
             NetworkClient = tcpClient;
         }
+
         public bool FirstTimeConnecting { get; set; } = true;
         public string Name { get; set; }
         public int Place { get; set; }
@@ -30,39 +32,7 @@ namespace Common
             Playroom = playroom;
         }
 
-        public void UpdateProgress(int wpmProgress, int completedTextPercentage)
-        {
-            WPMProgress = wpmProgress;
-            CompletedTextPercentage = completedTextPercentage;
-        }
-
-
-        //public void TrySetRank()
-        //{
-        //    if (CompletedTextPercentage == 100 && !Finnished)
-        //    {
-        //        Finnished = true;
-        //        Place = Playroom.Place++;
-        //    }
-        //}
-        //public bool CheckIfTriesToRestart()
-        //{
-        //    return Name.Contains("_restart");
-        //}
-
-        //public bool CheckIfLeft()
-        //{
-        //    if (Name?.Contains("_removed") == true)
-        //    {
-        //        Playroom.Leave(Name);
-        //        NetworkClient.Dispose();
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
-
-        //synchronous write   
+        //synchronous write
         public void Write(IMessage message)
         {
             NetworkClient.Write(message);
@@ -79,11 +49,19 @@ namespace Common
         {
             NetworkClient.BeginWrite(message, successCallback, failedCallback);
         }
+
         //asynchronous read
         public void BeginReadMessage(Action<IMessage> successCallback, Action<Exception> failedCallback)
         {
+            if (receivedData.Contains("#"))
+            {
+                receivedData = receivedData.Substring(0, receivedData.IndexOf('#'));
+                successCallback(new ReceivedMessage(receivedData));
+                //clearing the string
+                receivedData = string.Empty;
+                return;
+            }
             NetworkClient.BeginRead(buffer, 0, buffer.Length, ReadCallback, failedCallback);
-
             void ReadCallback(int bytesRead)
             {
                 if (bytesRead > 0)
@@ -92,13 +70,9 @@ namespace Common
 
                     if (receivedData.Contains("#"))
                     {
-                        // All the data has been read from the stream
-                        receivedData = receivedData.Remove(receivedData.Length - 1);
-
-                        //receivedMessage implements IMessage
-                        ReceivedMessage receivedMessage = new ReceivedMessage(receivedData);
-
-                        successCallback(receivedMessage);
+                        receivedData = receivedData.Substring(0, receivedData.IndexOf('#'));
+                        successCallback(new ReceivedMessage(receivedData));
+                        receivedData = string.Empty;
                     }
                     else
                     {
@@ -108,24 +82,16 @@ namespace Common
                 }
                 else
                 {
+                    failedCallback(new IOException());
                     NetworkClient.Dispose();
                 }
-
             }
         }
-        public void UpdateInfo(string dataReceived)
+
+        public void UpdateProgress(int wpmProgress, int completedTextPercentage)
         {
-            //received the name, if first time connected and progress infos
-            var nameAndInfo = dataReceived.Split('$');
-            var infos = nameAndInfo.FirstOrDefault()?.Split('&');
-            Name = nameAndInfo.LastOrDefault();
-            FirstTimeConnecting = Convert.ToBoolean(infos[2]);
-            var wpmProgress = int.Parse(infos[0]);
-            var completedTextPercentage = int.Parse(infos[1]);
-            UpdateProgress(wpmProgress, completedTextPercentage);
-
-            Console.WriteLine("Name: " + Name + ", First time connecting: " + FirstTimeConnecting + ", WPMprogress: " + WPMProgress + ", completed text: " + completedTextPercentage);
+            WPMProgress = wpmProgress;
+            CompletedTextPercentage = completedTextPercentage;
         }
-
     }
 }

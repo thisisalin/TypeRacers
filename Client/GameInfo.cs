@@ -26,7 +26,7 @@ namespace TypeRacers.Client
             return Players.Find(p => p.Name.Equals(name));
         }
 
-        public bool Join(Player player, IRecievedInformationManager informationManager)
+        public bool Join(Player player)
         {
             Players.Add(player);
             return true;
@@ -86,8 +86,7 @@ namespace TypeRacers.Client
                 {
                     Name = receivedName
                 };
-                var informationManager = new ClientReceivedInformationManager(player, this);
-                Join(player, informationManager);
+                Join(player);
             }
             else
             {

@@ -1,140 +1,132 @@
-﻿using Common;
-using System;
-using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-
-namespace TypeRacers.Client
+﻿namespace TypeRacers.Client
 {
-    public class ClientReceivedInformationManager : IRecievedInformationManager
+    public class ClientReceivedInformationManager
     {
-        private string receivedData;
-        private byte[] buffer = new byte[1024];
-        private INetworkClient networkClient;
+        //    private string receivedData;
+        //    private byte[] buffer = new byte[1024];
+        //    private INetworkClient networkClient;
 
-        public ClientReceivedInformationManager(Player player, IPlayroom playroom)
-        {
-            Player = player;
-            Playroom = playroom;
-            GameInfo = (GameInfo)playroom;
-            networkClient = Player.NetworkClient;
-        }
+        //    public ClientReceivedInformationManager(Player player, IPlayroom playroom)
+        //    {
+        //        Player = player;
+        //        Playroom = playroom;
+        //        GameInfo = (GameInfo)playroom;
+        //        networkClient = Player.NetworkClient;
+        //    }
 
-        public Player Player { get; set; }
-        public IPlayroom Playroom { get; set; }
-        private GameInfo GameInfo { get; }
+        //    public Player Player { get; set; }
+        //    public IPlayroom Playroom { get; set; }
+        //    private GameInfo GameInfo { get; }
 
-        public void StartCommunication()
-        {
+        //    public void StartCommunication()
+        //    {
+        //        if (!Player.Removed)
+        //        {
+        //            //first we send some info to the server
+        //            SendInfoToServer();
+        //        }
+        //    }
 
-            if (networkClient.IsConnected() && !Player.Removed)
-            {
-                //first we send some info to the server
-                SendInfoToServer();
-            }
-        }
+        //    public void SendInfoToServer()
+        //    {
+        //        //player.Write contains networkclient.BeginWrite()
+        //        networkClient.Write(new PlayerMessage(Player.WPMProgress, Player.CompletedTextPercentage, Player.Name, Player.FirstTimeConnecting, Player.Restarting, Player.Removed), WriteCallback);
+        //        GameInfo.OnOpponentsChanged(GameInfo.Players);
 
-        public void SendInfoToServer()
-        {
-            //player.Write contains networkclient.BeginWrite()
-            networkClient.Write(new PlayerMessage(Player.WPMProgress, Player.CompletedTextPercentage, Player.Name, Player.FirstTimeConnecting, Player.Restarting, Player.Removed), WriteCallback);
-            GameInfo.OnOpponentsChanged(GameInfo.Players);
+        //        Thread.Sleep(1000);
 
-            Thread.Sleep(1000);
+        //        if (Player.Removed)
+        //        {
+        //            networkClient.Write(new PlayerMessage(Player.WPMProgress, Player.CompletedTextPercentage, Player.Name, Player.FirstTimeConnecting, Player.Restarting, Player.Removed), WriteCallback);
+        //        }
+        //    }
 
-            if (Player.Removed)
-            {
-                networkClient.Write(new PlayerMessage(Player.WPMProgress, Player.CompletedTextPercentage, Player.Name, Player.FirstTimeConnecting, Player.Restarting, Player.Removed), WriteCallback);
-            }
-        }
+        //    private void WriteCallback(IAsyncResult ar)
+        //    {
+        //        //when the write is done we reach here
+        //        try
+        //        {
+        //            // Retrieve the stream from the state object.
+        //            NetworkStream networkStream = (NetworkStream)ar.AsyncState;
+        //            // Complete sending the data to the remote device.
+        //            networkStream?.EndWrite(ar);
+        //            //after writing we read again, Player.Read contains networkclient.BeginRead()
+        //            networkClient.Read(ReadCallback, buffer);
+        //        }
+        //        catch (IOException)
+        //        {
+        //            networkClient.Dispose();
+        //        }
+        //    }
 
-        private void WriteCallback(IAsyncResult ar)
-        {
-            //when the write is done we reach here
-            try
-            {
-                // Retrieve the stream from the state object.
-                NetworkStream networkStream = (NetworkStream)ar.AsyncState;
-                // Complete sending the data to the remote device.
-                networkStream?.EndWrite(ar);
-                //after writing we read again, Player.Read contains networkclient.BeginRead()
-                networkClient.Read(ReadCallback, buffer);
-            }
-            catch (IOException)
-            {
-                networkClient.Dispose();
-            }
-        }
+        //    private void ReadCallback(IAsyncResult ar)
+        //    {
+        //        //when the read is done we reach here
+        //        try
+        //        {
+        //            NetworkStream networkStream = (NetworkStream)ar.AsyncState;
+        //            int bytesRead = networkStream.EndRead(ar);
 
-        private void ReadCallback(IAsyncResult ar)
-        {
-            //when the read is done we reach here
-            try
-            {
-                NetworkStream networkStream = (NetworkStream)ar.AsyncState;
-                int bytesRead = networkStream.EndRead(ar);
+        //            if (bytesRead > 0)
+        //            {
+        //                receivedData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+        //                if (receivedData.Contains("#"))
+        //                {
+        //                    //received all data
+        //                    receivedData = receivedData.Remove(receivedData.Length - 1);
+        //                    ProcessResults(receivedData);
+        //                }
+        //                else
+        //                {
+        //                    // Not all data received. Get more.
+        //                    networkStream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(ReadCallback), networkStream);
+        //                }
+        //            }
+        //            //finally write to server again
+        //            SendInfoToServer();
+        //        }
+        //        catch(ObjectDisposedException)
+        //        {
+        //            networkClient.Dispose();
+        //        }
+        //        catch (IOException)
+        //        {
+        //            networkClient.Dispose();
+        //        }
+        //    }
 
-                if (bytesRead > 0)
-                {
-                    receivedData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    if (receivedData.Contains("#"))
-                    {
-                        //received all data
-                        receivedData = receivedData.Remove(receivedData.Length - 1);
-                        ProcessResults(receivedData);
-                    }
-                    else
-                    {
-                        // Not all data received. Get more.
-                        networkStream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(ReadCallback), networkStream);
-                    }
-                }
-                //finally write to server again
-                SendInfoToServer();
-            }
-            catch(ObjectDisposedException)
-            {
-                networkClient.Dispose();
-            }
-            catch (IOException)
-            {
-                networkClient.Dispose();
-            }
-        }
+        //    private void ProcessResults(string data)
+        //    {
+        //        if (Player.FirstTimeConnecting || Player.Restarting)
+        //        {
+        //            GameInfo.SetGameInfo(data);
+        //            Player.FirstTimeConnecting = false;
+        //            Player.Restarting = false;
+        //        }
+        //        else
+        //        {
+        //            SetGameStatus(data);
+        //        }
+        //    }
 
-        private void ProcessResults(string data)
-        {
-            if (Player.FirstTimeConnecting || Player.Restarting)
-            {
-                GameInfo.SetGameInfo(data);
-                Player.FirstTimeConnecting = false;
-                Player.Restarting = false;
-            }
-            else
-            {
-                SetGameStatus(data);
-            }
-        }
+        //    private void SetGameStatus(string data)
+        //    {
+        //        var infos = data.Split('%').ToList();
 
-        private void SetGameStatus(string data)
-        {
-            var infos = data.Split('%').ToList();
-
-            infos.Remove("#");
-            foreach (var i in infos)
-            {
-                if (i.StartsWith("!"))
-                {
-                    var rank = i.Split('/');
-                    Player.Finnished = Convert.ToBoolean(rank.FirstOrDefault().Substring(1));
-                    Player.Place = int.Parse(rank.LastOrDefault());
-                    infos.Remove(i);
-                    break;
-                }
-            }
-            GameInfo.SetOpponentsAndTimers(infos);
-        }
+        //        infos.Remove("#");
+        //        foreach (var i in infos)
+        //        {
+        //            if (i.StartsWith("!"))
+        //            {
+        //                var rank = i.Split('/');
+        //                Player.Finnished = Convert.ToBoolean(rank.FirstOrDefault().Substring(1));
+        //                Player.Place = int.Parse(rank.LastOrDefault());
+        //                infos.Remove(i);
+        //                break;
+        //            }
+        //        }
+        //        GameInfo.SetOpponentsAndTimers(infos);
+        //    }
+        //}
     }
 }

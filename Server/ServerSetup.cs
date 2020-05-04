@@ -11,6 +11,7 @@ namespace TypeRacers.Server
     {
         //todo: change name to server
         private TcpListener server;
+
         private Rooms playrooms;
         private TcpClient client;
 

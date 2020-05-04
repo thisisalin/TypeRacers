@@ -67,14 +67,13 @@ namespace Common
             {
                 Dispose();
             }
-
         }
 
         //asynchronous read
         public void BeginRead(byte[] buffer, int offset, int size, Action<int> succesCallback, Action<Exception> failedCallback)
         {
-
-            networkStream.BeginRead(buffer, offset, size, ReadCallback, null);
+            networkStream = realTcpClient.GetStream();
+            networkStream.BeginRead(buffer, offset, size, ReadCallback, networkStream);
             void ReadCallback(IAsyncResult ar)
             {
                 NetworkStream networkStream = ar.AsyncState as NetworkStream;
@@ -95,7 +94,7 @@ namespace Common
         public void BeginWrite(IMessage message, Action successCallback, Action<Exception> failedCallback)
         {
             var toSend = message.ToByteArray();
-
+            networkStream = realTcpClient.GetStream();
             networkStream.BeginWrite(toSend, 0, toSend.Length, WriteCallback, networkStream);
 
             void WriteCallback(IAsyncResult ar)
@@ -103,6 +102,7 @@ namespace Common
                 try
                 {
                     networkStream.EndWrite(ar);
+
                     successCallback();
                 }
                 catch (IOException x)
